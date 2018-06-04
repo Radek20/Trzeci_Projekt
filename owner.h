@@ -7,28 +7,21 @@ class owner /* klasa bazowa reprezentujaca wlascicieli */
     int number; /* numer wlasciciela */
 
     public:
-    owner() /* konstruktor */
+    owner(int num) /* konstruktor */
     {
-        cout<<endl<<"WPROWADZ DANE WLASCICIELA:"<<endl<<endl;
-
-        cout<<"Podaj numer wlasciciela"<<endl;
-
-        while(!(cin>>number)) /* wczytywanie numeru, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        number=num;
     };
 
     void virtual show()const /* metoda odpowiedzialna za wyswietlenie informacji o wlascicielu */
     {
-        cout<<"NUMER WLASCICIELA:"<<endl;
+        cout<<"NUMER WLASCICIELA:";
         cout<<number;
 
     };
+
+    string virtual preview_name()const {}; /* podglad danych */
+    string virtual preview_surname()const {}; /* podglad danych */
+
 };
 
 class person: public owner /* klasa reprezentujaca wlasciciela - osoba prywatna */
@@ -40,29 +33,19 @@ class person: public owner /* klasa reprezentujaca wlasciciela - osoba prywatna 
     owner* co_owner; /* wskaznik na wspolwlasciciela */
 
     public:
-    person():owner() /* konstruktor */
+    person(int num, string nam, string sur, int po, owner* co):owner(num) /* konstruktor */
     {
-        cout<<"Podaj imie"<<endl;
-        cin>>name;
+        name=nam;
+        surname=sur;
+        pom=po;
+        co_owner=co;
+    };
 
-        cout<<"Podaj nazwisko"<<endl;
-        cin>>surname;
-
-        cout<<"Czy chcesz dodac wspolwlasciciela? Wprowadz 1 jesli tak lub 0 jesli nie"<<endl;
-        while(!(cin>>pom))/* wczytywanie informacji o wspolwlascicielu, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-       if(pom!=0)
-        {
-            cout<<"PODAJ DANE WSPOLWLASCICIELA"<<endl;
-            co_owner=new person;
-        }
-
+    person(int num, string nam, string sur, int po):owner(num) /* konstruktor */
+    {
+        name=nam;
+        surname=sur;
+        pom=po;
     };
 
     ~person() /* destruktor */
@@ -81,12 +64,17 @@ class person: public owner /* klasa reprezentujaca wlasciciela - osoba prywatna 
 
         if(pom!=0)
         {
-            cout<<endl<<"WSPOLWLASCICIEL:";
+            cout<<endl<<endl<<"WSPOLWLASCICIEL:";
             co_owner->show();
         }
 
     };
 
+    string preview_name() const /* podglad danych */
+    { return name; };
+
+    string preview_surname() const /* podglad danych */
+    { return surname; };
 };
 
 class company: public owner /* klasa reprezentujaca wlasciciela - firma */
@@ -95,13 +83,9 @@ class company: public owner /* klasa reprezentujaca wlasciciela - firma */
     string name; /* nazwa firmy */
 
     public:
-    company():owner() /* konstruktor */
+    company(int num, string nam):owner(num) /* konstruktor */
     {
-        cout<<"Podaj nazwe firmy"<<endl;
-        cin.clear();
-        cin.ignore(9999, '\n' );
-        getline(cin, name);
-
+        name=nam;
     };
 
     void show()const /* metoda odpowiedzialna za wyswietlenie informacji o wlascicielu */
@@ -109,6 +93,9 @@ class company: public owner /* klasa reprezentujaca wlasciciela - firma */
         cout<<endl<<"NAZWA FIRMY:"<<endl;
         cout<<name;
     };
+
+    string preview_name() const /* podglad danych */
+    { return name; };
 };
 
 #endif

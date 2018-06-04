@@ -1,6 +1,10 @@
 #ifndef vehicle_h
 #define vehicle_h
 
+
+owner* OWNER(int);
+owner* OWNER2(int,int,string,string);
+
 class vehicle /* klasa bazowa reprezentujaca pojazdy */
 {
     protected:
@@ -11,89 +15,45 @@ class vehicle /* klasa bazowa reprezentujaca pojazdy */
     string mark; /* marka */
     string petrol; /* rodzaj paliwa */
     int pomo; /* zmienna pomocnicza przechowujaca informacje czy wlascicielem jest osoba prywatna czy firma */
-    person* proprietor1; /* wskaznik na wlasciciela - osoba prywatna */
-    company* proprietor2; /* wskaznik na wlasciciela - firma */
+    owner* proprietor; /* wskaznik na wlasciciela */
 
     public:
-    vehicle() /* konstruktor */
+    vehicle(string nreg, string noc, string vin, string mar, string pet, owner* own) /* konstruktor */
     {
-        cout<<endl<<"WPROWADZANIE NOWEGO POJAZDU:"<<endl<<endl;
-
-        cout<<"Wybierz 1-jesli wlascicielem jest osoba prywatna lub 2-jesli firma"<<endl;
-        while(!(cin>>pomo)) /* wczytywanie zmiennej, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        if(pomo==1) /* przypisywanie wlasciciela */
-        { proprietor1=new person; }
-        else
-        { proprietor2=new company; }
-
-        cout<<"Podaj numer rejestracyjny"<<endl;
-        cin>>reg_number;
-
-        cout<<"Podaj 12 znakowy numer polisy OC"<<endl;
-        cin>>OC_number;
-
-        cout<<"Podaj 7 znakowy numer VIN"<<endl;
-        cin>>VIN;
-
-        cout<<"Podaj marke pojazdu"<<endl;
-        cin>>mark;
-
-        cout<<"Podaj rodzaj paliwa (Pb, ON, Prad)"<<endl;
-        cin>>petrol;
+        reg_number=nreg;
+        OC_number=noc;
+        VIN=vin;
+        mark=mar;
+        petrol=pet;
+        proprietor=own;
 
     };
+
+    vehicle(){};
 
     ~vehicle() /* destruktor */
     {
-        if(pomo==1)
-        { delete proprietor1; }
-        else
-        { delete proprietor2; }
+        delete proprietor;
     };
 
-    void change_reg() /* metoda odpowiadajaca za zmiane numeru rejestracyjnego */
-    {
-        cout<<"Podaj nowy numer rejestracyjny"<<endl;
-        cin>>reg_number;
-    };
+    void change_reg(string nreg) /* metoda odpowiadajaca za zmiane numeru rejestracyjnego */
+    { reg_number=nreg; };
 
-    void add_OC() /* metoda odpowiadajaca za dodanie OC */
-    {
-        cout<<"Podaj 12 znakowy numer polisy OC"<<endl;
-        cin>>OC_number;
-    };
+    void add_OC(string noc) /* metoda odpowiadajaca za dodanie OC */
+    { OC_number=noc; };
 
-    void change_owner() /* metoda odpowiadajaca za zmiane wlasciciela */
+    void change_owner(int test_mode=0, int co=0, int num=0, string nam="", string sur="") /* metoda odpowiadajaca za zmiane wlasciciela */
     {
-        if(pomo==1) /* usuwanie poprzedniego wlasciciela */
-        { delete proprietor1; }
-        else
-        { delete proprietor2; }
+        delete proprietor;
 
         pomo=0; /* zerowanie zmiennej */
-
-        cout<<"WPROWADZANIE DANYCH NOWEGO WLASCICIELA:"<<endl<<endl;
-
-        cout<<"Wybierz 1-jesli wlascicielem jest osoba prywatna lub 2-jesli firma"<<endl;
-        while(!(cin>>pomo)) /* wczytywanie zmiennej, wykrywanie bledu */
+        if(test_mode==0)
         {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
+            cout<<"WPROWADZANIE DANYCH NOWEGO WLASCICIELA:"<<endl<<endl;
+            proprietor=OWNER(0);
         }
-
-        if(pomo==1) /* przypisywanie wlasciciela */
-        { proprietor1=new person; }
         else
-        { proprietor2=new company; }
+        { proprietor=OWNER2(co,num,nam,sur); }
     };
 
     void add_type(int t) /* metoda odpowiadajaca za przypisanie typu pojazdu */
@@ -116,10 +76,7 @@ class vehicle /* klasa bazowa reprezentujaca pojazdy */
     void virtual show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
         cout<<"WLASCICIEL:"<<endl;
-        if(pomo==1)
-        { proprietor1->show(); }
-        else
-        { proprietor2->show(); }
+        proprietor->show();
 
         cout<<endl<<endl<<"NUMER REJESTRACYJNY:"<<endl;
         cout<<reg_number;
@@ -146,6 +103,14 @@ class vehicle /* klasa bazowa reprezentujaca pojazdy */
         cout<<setw(20)<<left<<reg_number<<setw(20)<<left<<OC_number<<setw(20)<<left<<VIN<<setw(25)<<left<<type<<setw(20)<<left<<mark<<endl;
     };
 
+    string preview_reg() const /* metoda zwracajaca aktualny numer rejestracyjny */
+    { return reg_number; };
+
+    string preview_oc() const /* metoda zwracajaca aktualny numer polisy OC */
+    { return OC_number; };
+
+    owner* preview_owner() const /* metoda zwracajaca wskaznik na wlasciciela */
+    { return proprietor; };
 };
 
 class car: public vehicle /* klasa reprezentujaca samochody */
@@ -157,31 +122,14 @@ class car: public vehicle /* klasa reprezentujaca samochody */
 
     public:
 
-    car():vehicle() /* konstruktor */
+    car(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, int pow, int npe):vehicle(nreg, noc, vin, mar, pet, own) /* konstruktor */
     {
-        cout<<"Podaj kolor"<<endl;
-        cin>>colour;
-
-        cout<<"Podaj moc w KM"<<endl;
-        while(!(cin>>power))/* wczytywanie informacji o mocy silnika, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj dopuszczalna ilosc osob"<<endl;
-        while(!(cin>>nperson))/* wczytywanie informacji o ilosci miejsc, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
+        colour=col;
+        power=pow;
+        nperson=npe;
     };
 
-
+    car(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -207,27 +155,13 @@ class electric_car: public car /* klasa reprezentujaca samochody elektryczne */
     double range; /* zasieg (maksymalna ilosc kilometrow przejechana na jednym ladowaniu) */
 
     public:
-    electric_car():car()  /* konstruktor */
+    electric_car(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, int pow, int npe, double bat, double ran):car(nreg, noc, vin, mar, pet, own, col, pow, npe)
     {
-        cout<<"Podaj pojemnosc akumulatora w mAh"<<endl;
-        while(!(cin>>battery))/* wczytywanie informacji o pojemnosci baterii, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj maksymalny zasieg w km"<<endl;
-        while(!(cin>>range))/* wczytywanie informacji o maksymalny zasieg, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        battery=bat;
+        range=ran;
     };
+
+    electric_car(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -250,27 +184,13 @@ class normal_car: public car /* klasa reprezentujaca samochody bedaca uzupelnien
     double speed;  /* maksymalna predkosc */
 
     public:
-    normal_car():car() /* konstruktor */
+    normal_car(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, int pow, int npe, double tan, double spe):car(nreg, noc, vin, mar, pet, own, col, pow, npe) /* konstruktor */
     {
-        cout<<"Podaj pojemnosc baku w l"<<endl;
-        while(!(cin>>tank)) /* wczytywanie informacji o pojemnosci baku, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj maksymalna predkosc"<<endl;
-        while(!(cin>>speed)) /* wczytywanie informacji o maksymalnej predkosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        tank=tan;
+        speed=spe;
     };
+
+    normal_car(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -296,32 +216,14 @@ class motorcycle: public vehicle /* klasa reprezentujaca motocykle */
 
     public:
 
-    motorcycle():vehicle()  /* konstruktor */
+    motorcycle(string nreg, string noc, string vin, string mar, string pet, owner* own, string mod, int spe, int acc):vehicle(nreg, noc, vin, mar, pet, own)  /* konstruktor */
     {
-        cout<<"Podaj model"<<endl;
-        cin>>model;
-
-        cout<<"Podaj maksymalna predkosc w km/h"<<endl;
-        while(!(cin>>speed)) /* wczytywanie informacji o maksymalnej predkosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj przyspieszenie w m/s^2"<<endl;
-        while(!(cin>>accelerate)) /* wczytywanie informacji o przyspieszeniu, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        model=mod;
+        speed=spe;
+        accelerate=acc;
     };
 
-
+    motorcycle(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -346,23 +248,13 @@ class big_vehicle: public vehicle /* klasa reprezentujaca duze pojazdy */
 
     public:
 
-    big_vehicle():vehicle()  /* konstruktor */
+    big_vehicle(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double wei):vehicle(nreg, noc, vin, mar, pet, own)  /* konstruktor */
     {
-        cout<<"Podaj kolor"<<endl;
-        cin>>colour;
-
-        cout<<"Podaj mase w tonach"<<endl;
-        while(!(cin>>weight)) /* wczytywanie informacji o wadze, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        colour=col;
+        weight=wei;
     };
 
-
+    big_vehicle(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -387,23 +279,13 @@ class tram: public big_vehicle /* klasa reprezentujaca tramwaje */
 
     public:
 
-    tram():big_vehicle()  /* konstruktor */
+    tram(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double wei, string mod, double ag):big_vehicle(nreg, noc, vin, mar, pet, own, col, wei)  /* konstruktor */
     {
-        cout<<"Podaj model"<<endl;
-        cin>>model;
-
-        cout<<"Podaj wiek"<<endl;
-        while(!(cin>>age)) /* wczytywanie informacji o wieku, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        model=mod;
+        age=ag;
     };
 
-
+    tram(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -426,31 +308,14 @@ class truck: public big_vehicle /* klasa reprezentujaca ciezarowki */
 
     public:
 
-    truck():big_vehicle() /* konstruktor */
+    truck(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double wei, double len, string pro, double loa):big_vehicle(nreg, noc, vin, mar, pet, own, col, wei) /* konstruktor */
     {
-        cout<<"Podaj dlugosc pojazdu w m"<<endl;
-        while(!(cin>>lenght)) /* wczytywanie informacji o dlugosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj rodzaj przewozonych towarow"<<endl;
-        cin>>product;
-
-        cout<<"Podaj ladownosc ciezarowki w tonach"<<endl;
-        while(!(cin>>load)) /* wczytywanie informacji o ladownosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
+        lenght=len;
+        product=pro;
+        load=loa;
     };
 
-
+    truck(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -475,28 +340,13 @@ class bus: public big_vehicle /* klasa reprezentujaca autobusy */
 
     public:
 
-    bus():big_vehicle() /* konstruktor */
+    bus(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double wei, double len, int pas):big_vehicle(nreg, noc, vin, mar, pet, own, col, wei) /* konstruktor */
     {
-        cout<<"Podaj dlugosc pojazdu w m"<<endl;
-        while(!(cin>>lenght)) /* wczytywanie informacji o dlugosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj maksymalna ilosc pasazerow"<<endl;
-        while(!(cin>>passenger)) /* wczytywanie informacji o maksymalnej liczbie pasazerow, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
+        lenght=len;
+        passenger=pas;
     };
 
-
+    bus(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -520,31 +370,14 @@ class boat: public vehicle /* klasa reprezentujaca lodzie */
 
     public:
 
-    boat():vehicle() /* konstruktor */
+    boat(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double dis, int npe):vehicle(nreg, noc, vin, mar, pet, own) /* konstruktor */
     {
-        cout<<"Podaj kolor"<<endl;
-        cin>>colour;
-
-        cout<<"Podaj wypornosc w tonach"<<endl;
-        while(!(cin>>displacement)) /* wczytywanie informacji o wypornosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj dopuszczalna ilosc osob"<<endl;
-        while(!(cin>>nperson)) /* wczytywanie informacji o maksymalnej ilosci osob na pokladzie, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
+        colour=col;
+        displacement=dis;
+        nperson=npe;
     };
 
-
+    boat(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -570,27 +403,13 @@ class motorboat: public boat /* klasa reprezentujaca motorowki */
     double speed; /* maksymalna predkosc */
 
     public:
-    motorboat():boat() /* konstruktor */
+    motorboat(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double dis, int npe, double tan, double spe):boat(nreg, noc, vin, mar, pet, own, col, dis, npe) /* konstruktor */
     {
-        cout<<"Podaj pojemnosc baku w l"<<endl;
-        while(!(cin>>tank)) /* wczytywanie informacji o pojemnosci baku, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj maksymalna predkosc"<<endl;
-        while(!(cin>>speed)) /* wczytywanie informacji o maksymalnej predkosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        tank=tan;
+        speed=spe;
     };
+
+    motorboat(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -614,36 +433,14 @@ class jet_ski: public boat /* klasa reprezentujaca skutery wodne */
     double weight; /* waga */
 
     public:
-    jet_ski():boat() /* konstruktor */
+    jet_ski(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double dis, int npe, double tan, double spe, double wei):boat(nreg, noc, vin, mar, pet, own, col, dis, npe) /* konstruktor */
     {
-        cout<<"Podaj pojemnosc baku w l"<<endl;
-        while(!(cin>>tank)) /* wczytywanie informacji o pojemnosci baku, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj maksymalna predkosc"<<endl;
-        while(!(cin>>speed)) /* wczytywanie informacji o maksymalnej predkosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj wage"<<endl;
-        while(!(cin>>weight)) /* wczytywanie informacji o wadze, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
+        tank=tan;
+        speed=spe;
+        weight=wei;
     };
+
+    jet_ski(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -668,12 +465,12 @@ class ship: public boat /* klasa reprezentujaca okrety */
     string exploitation; /* przeznaczenie (do jakich celow wykozystywany jest okret) */
 
     public:
-    ship():boat() /* konstruktor */
+    ship(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double dis, int npe, string exp):boat(nreg, noc, vin, mar, pet, own, col, dis, npe) /* konstruktor */
     {
-        cout<<"Podaj do jakich celow wykorzystywany jest okret"<<endl;
-        cin>>exploitation;
-
+        exploitation=exp;
     };
+
+    ship(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
@@ -693,26 +490,13 @@ class freegan: public boat /* klasa reprezentujaca kontenerowce */
     double incineration; /* spalanie */
 
     public:
-    freegan():boat() /* konstruktor */
+    freegan(string nreg, string noc, string vin, string mar, string pet, owner* own, string col, double dis, int npe,double loa, double inc):boat(nreg, noc, vin, mar, pet, own, col, dis, npe) /* konstruktor */
     {
-        cout<<"Podaj ladownosc w tonach"<<endl;
-        while(!(cin>>load)) /* wczytywanie informacji o ladownosci, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
-
-        cout<<"Podaj spalanie w l/h"<<endl;
-        while(!(cin>>incineration)) /* wczytywanie informacji o spalaniu, wykrywanie bledu */
-        {
-            cout<<"Blad! To nie jest liczba, podaj jeszcze raz: ";
-            cin.clear();
-            cin.ignore(9999, '\n' );
-            cout<<endl;
-        }
+        load=loa;
+        incineration=inc;
     };
+
+    freegan(){};
 
     void show()const /* metoda odpowiadajaca za wyswietlenie informacji o pojezdzie */
     {
